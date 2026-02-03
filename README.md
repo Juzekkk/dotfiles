@@ -27,6 +27,10 @@ You must install the following tools before applying these configurations.
 *   **[ripgrep](https://github.com/BurntSushi/ripgrep)** (`rg`): Required by `fzf-lua` for grep searching.
 *   **[fd](https://github.com/sharkdp/fd)**: Faster `find` alternative, required for file lookups.
 
+### MPV
+*   **[Mpv](https://github.com/mpv-player/mpv):** Free media player for the command line
+*   **[uosc](https://github.com/tomasklaen/uosc)** Feature-rich minimalist proximity-based UI 
+
 
 ## Installation
 
