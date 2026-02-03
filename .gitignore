@@ -1,3 +1,7 @@
+LOCAL_APPDATA_FONTCONFIG_CACHE
+.config/mpv/scripts/uosc
+
+
 # Compiled Lua sources
 luac.out
 
