@@ -30,6 +30,9 @@ return {
   config = function()
     require("fzf-lua").setup {
       "hide",
+      grep = {
+          rg_opts = "--hidden",
+      },
       fzf_opts = { ["--cycle"] = true },
       files = {
         git_icons = false,
