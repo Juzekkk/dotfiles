@@ -68,5 +68,3 @@ alias camera="mpv --profile=low-latency --untimed /dev/video0"
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
-
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
