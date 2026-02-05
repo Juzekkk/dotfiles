@@ -13,6 +13,11 @@ local settings = {
     output_path = "",
     ffmpeg_params = "",
 
+    youtube = {
+        output_path = os.getenv("HOME") .. "/clips/yt",
+        ytdlp_path = "/usr/bin/yt-dlp",
+    },
+
     web = {
         key_mark_cut = "shift+c",
         audio_bitrate = 128,
@@ -30,6 +35,7 @@ local state = {
     filename = nil,
     directory = nil,
     is_web_mode = false,
+    is_youtube = false,
     start_pos = nil,
     end_pos = nil,
 }
@@ -47,6 +53,29 @@ local function get_base_name(filename, ext)
     return filename:gsub("%." .. ext .. "$", "")
 end
 
+local function sanitize_filename(name)
+    -- Remove/replace characters that are problematic in filenames
+    return name
+        :gsub('[<>:"/\\|?*]', "_")
+        :gsub("%s+", "_")
+        :gsub("_+", "_")
+        :gsub("^_+", "")
+        :gsub("_+$", "")
+end
+
+local function ensure_directory(path)
+    local info = utils.file_info(path)
+    if not info then
+        local result = os.execute('mkdir -p "' .. path .. '"')
+        if not result then
+            msg.error("Failed to create directory: " .. path)
+            return false
+        end
+        msg.info("Created directory: " .. path)
+    end
+    return true
+end
+
 local function get_unique_filename(dir, filename, ext)
     dir = normalize_path(dir)
     local base = get_base_name(filename, ext)
@@ -61,6 +90,10 @@ local function get_unique_filename(dir, filename, ext)
     return new_path
 end
 
+local function is_url(path)
+    return path:match("^https?://") or path:match("^ytdl://")
+end
+
 -- ============================================================================
 -- Utilities
 -- ============================================================================
@@ -71,6 +104,13 @@ local function format_timestamp(seconds)
     local secs = math.floor(seconds % 60)
     local ms = math.floor((seconds % 1) * 1000)
     return string.format("%02d:%02d:%02d.%03d", hrs, mins, secs, ms)
+end
+
+local function format_timestamp_short(seconds)
+    -- For filenames: MM-SS format
+    local mins = math.floor(seconds / 60)
+    local secs = math.floor(seconds % 60)
+    return string.format("%02d-%02d", mins, secs)
 end
 
 local function log_to_file(message)
@@ -194,6 +234,31 @@ local function ffmpeg_resize(input, output, duration)
 end
 
 -- ============================================================================
+-- YouTube Download
+-- ============================================================================
+
+local function ytdlp_download_clip(url, output, time_start, time_end)
+    local cmd = {
+        settings.youtube.ytdlp_path,
+        "--no-warnings",
+        "-f", "bestvideo+bestaudio/best",
+        "--download-sections", string.format("*%s-%s", time_start, time_end),
+        "--force-keyframes-at-cuts",
+        "--merge-output-format", settings.video_extension,
+        "-o", output,
+        url,
+    }
+
+    local status, _, stderr = run_command(cmd)
+    if status > 0 then
+        local err = (stderr or ""):gsub("^%s*(.-)%s*$", "%1")
+        notify(msg.error, err, nil, true)
+        return false
+    end
+    return true
+end
+
+-- ============================================================================
 -- Main Logic
 -- ============================================================================
 
@@ -223,30 +288,74 @@ function mark_pos()
     local duration = state.end_pos - state.start_pos
     notify(msg.info, "End: " .. format_timestamp(pos), 3)
 
-    local output_dir = settings.output_path ~= "" and settings.output_path or state.directory
-    local output = get_unique_filename(output_dir, state.filename, settings.video_extension)
+    local output
 
-    msg.info("Output: " .. output)
-
-    if not ffmpeg_cut(state.path, output, format_timestamp(state.start_pos), format_timestamp(state.end_pos)) then
-        notify(msg.error, "Cut failed! Check log.", 10)
-        reset_state()
-        return
-    end
-
-    -- Web mode: resize
-    if state.is_web_mode then
-        notify(msg.info, "Encoding for web...", 10)
-        local resized = get_unique_filename(output_dir, state.filename, settings.video_extension)
-
-        if not ffmpeg_resize(output, resized, duration) then
-            notify(msg.error, "Resize failed! Check log.", 10)
+    if state.is_youtube then
+        -- YouTube: use yt-dlp to download clip directly
+        if not ensure_directory(settings.youtube.output_path) then
+            notify(msg.error, "Cannot create output directory!", 10)
             reset_state()
             return
         end
 
-        cleanup_files({output, "ffmpeg2pass-0.log", "ffmpeg2pass-0.log.mbtree"})
-        output = resized
+        local timestamp = format_timestamp_short(state.start_pos) .. "_" .. format_timestamp_short(state.end_pos)
+        local safe_filename = sanitize_filename(state.filename)
+        local base_output = string.format("%s/%s_%s.%s",
+            normalize_path(settings.youtube.output_path),
+            safe_filename,
+            timestamp,
+            settings.video_extension
+        )
+
+        -- Find unique filename
+        output = base_output
+        local index = 1
+        while utils.file_info(output) do
+            output = string.format("%s/%s_%s_%d.%s",
+                normalize_path(settings.youtube.output_path),
+                safe_filename,
+                timestamp,
+                index,
+                settings.video_extension
+            )
+            index = index + 1
+        end
+
+        msg.info("Output: " .. output)
+        notify(msg.info, "Downloading clip...", 5)
+
+        if not ytdlp_download_clip(state.path, output, format_timestamp(state.start_pos), format_timestamp(state.end_pos)) then
+            notify(msg.error, "Download failed! Check log.", 10)
+            reset_state()
+            return
+        end
+    else
+        -- Local file: use ffmpeg
+        local output_dir = settings.output_path ~= "" and settings.output_path or state.directory
+        output = get_unique_filename(output_dir, state.filename, settings.video_extension)
+
+        msg.info("Output: " .. output)
+
+        if not ffmpeg_cut(state.path, output, format_timestamp(state.start_pos), format_timestamp(state.end_pos)) then
+            notify(msg.error, "Cut failed! Check log.", 10)
+            reset_state()
+            return
+        end
+
+        -- Web mode: resize
+        if state.is_web_mode then
+            notify(msg.info, "Encoding for web...", 10)
+            local resized = get_unique_filename(output_dir, state.filename, settings.video_extension)
+
+            if not ffmpeg_resize(output, resized, duration) then
+                notify(msg.error, "Resize failed! Check log.", 10)
+                reset_state()
+                return
+            end
+
+            cleanup_files({output, "ffmpeg2pass-0.log", "ffmpeg2pass-0.log.mbtree"})
+            output = resized
+        end
     end
 
     notify(msg.info, "Saved: " .. output, 10)
@@ -269,8 +378,16 @@ mp.register_event("file-loaded", function()
     local dir, filename = utils.split_path(path)
 
     state.path = path
-    state.filename = mp.get_property("filename")
     state.directory = dir
+    state.is_youtube = is_url(path)
+
+    if state.is_youtube then
+        -- For YouTube, use media-title which yt-dlp provides
+        state.filename = mp.get_property("media-title") or "youtube_clip"
+        msg.info("YouTube video detected: " .. state.filename)
+    else
+        state.filename = mp.get_property("filename")
+    end
 
     mp.set_property("keep-open", "always")
     msg.info("Loaded: " .. path)
