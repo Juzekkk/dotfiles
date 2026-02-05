@@ -7,8 +7,11 @@ if [ ! -d "$ZINIT_HOME" ]; then
    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
-# Source/Load zinit
+# Source zinit
 source "${ZINIT_HOME}/zinit.zsh"
+
+# Source ffmpeg_compress plugin
+source ~/.config/zsh/plugins/ffmpeg_compress.plugin.zsh
 
 # Add in zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
