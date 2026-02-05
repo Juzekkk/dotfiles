@@ -22,9 +22,8 @@ return {
       ft = "markdown",
       -- 'keys' belongs to lazy.nvim, not inside setup()
       keys = {
-          { "<Leader>tn", ":EasyTablesCreateNew ", desc = "Create New Table (e.g. 5x4)" },
-          { "<Leader>ti", "<cmd>EasyTablesImportThisTable<CR>", desc = "Import/Edit Current Table" },
-          { "<Leader>t4", "<cmd>EasyTablesCreateNew 4<CR>", desc = "Create 4x4 Table" },
+          { "<Leader>mtn", ":EasyTablesCreateNew ", desc = "Create New Table (e.g. 5x4)" },
+          { "<Leader>mti", "<cmd>EasyTablesImportThisTable<CR>", desc = "Import/Edit Current Table" },
       },
       config = function()
           require("easytables").setup({
