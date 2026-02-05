@@ -24,7 +24,6 @@ return {
     opts = {
       servers = {
         tinymist = {
-          -- Official configuration from https://myriad-dreamin.github.io/tinymist/frontend/neovim.html
           single_file_support = true,
           root_dir = function()
             return vim.fn.getcwd()
@@ -45,6 +44,9 @@ return {
     ft = "typst",
     version = "1.*",
     build = function() require("typst-preview").update() end,
+    opts = {
+        open_cmd = "firefox -P typst-preview -new-window %s"
+    },
     keys = {
       { "<leader>tp", "<cmd>TypstPreview<cr>", desc = "Start Typst Preview" },
     },

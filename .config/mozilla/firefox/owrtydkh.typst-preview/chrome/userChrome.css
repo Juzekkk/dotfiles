@@ -1,0 +1,10 @@
+/* userChrome.css dla minimalistycznego podglądu */
+/* #nav-bar */
+#nav-bar, #TabsToolbar, #PersonalToolbar, #sidebar-box, #sidebar-header {
+visibility: collapse !important;
+}
+
+/* Opcjonalnie: usuń obramowania */
+#browser, #appcontent, tabbrowser, #content, browser[type="content-primary"], .browserContainer {
+border: none !important;
+}
