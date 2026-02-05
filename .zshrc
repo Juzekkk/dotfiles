@@ -28,9 +28,9 @@ zinit snippet OMZP::command-not-found
 
 # Load completions
 autoload -Uz compinit && compinit
-
 zinit cdreplay -q
 
+# Load configuration
 eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/zen.toml)"
 
 # Keybindings
@@ -71,3 +71,7 @@ alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 /dev/video
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+
+# Exports
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
