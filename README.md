@@ -11,7 +11,9 @@ You must install the following tools before applying these configurations.
 *   **[git](https://git-scm.com/)**: Version control.
 *   **[curl](https://curl.se/)** / **wget**: For downloading installers/fonts.
 *   **[unzip](https://linux.die.net/man/1/unzip)** & **tar**: Required by Mason (Neovim) to extract servers.
-*   **[tree-sitter](https://github.com/tree-sitter/tree-sitter)**
+*   **[tree-sitter](https://github.com/tree-sitter/tree-sitter):** Parser generator tool.
+*   **[firefox](https://www.firefox.com/en-US/):** Browser.
+*   **[yay](https://github.com/Jguer/yay):** Package manager for AUR.
 
 ### Shell & Terminal
 *   **[zsh](https://www.zsh.org/)**: The shell.
@@ -29,8 +31,8 @@ You must install the following tools before applying these configurations.
 
 ### MPV
 *   **[Mpv](https://github.com/mpv-player/mpv):** Free media player for the command line
-*   **[uosc](https://github.com/tomasklaen/uosc)** Feature-rich minimalist proximity-based UI 
-
+*   **[uosc](https://github.com/tomasklaen/uosc):** Feature-rich minimalist proximity-based UI 
+*   **[yt-dlp](https://github.com/yt-dlp/yt-dlp):** Command-line audio/video downloander
 
 ## Installation
 
@@ -42,7 +44,7 @@ You must install the following tools before applying these configurations.
 
 2.  **Install dependencies (Arch Linux example):**
     ```sh
-    sudo pacman -S stow git zsh kitty fzf zoxide lazygit neovim ripgrep fd gcc make rust unzip
+    sudo pacman -S stow git zsh kitty fzf zoxide lazygit neovim ripgrep fd gcc make rust unzip firefox yay yt-dlp
     cargo install --locked tree-sitter-cli
     ```
 
@@ -52,12 +54,3 @@ You must install the following tools before applying these configurations.
     ```sh
     stow .
     ```
-    *Note: If you have existing `.zshrc` or `.config` files, backup/delete them first or stow will conflict.*
-
-## Structure
-
-*   `.zshrc` -> `~/.zshrc`
-*   `.config/kitty` -> `~/.config/kitty`
-*   `.config/nvim` -> `~/.config/nvim`
-*   `.config/lazygit` -> `~/.config/lazygit`
-*   `.config/ohmyposh` -> `~/.config/ohmyposh`
