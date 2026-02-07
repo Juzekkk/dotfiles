@@ -75,3 +75,7 @@ eval "$(zoxide init --cmd cd zsh)"
 # Exports
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+
+# Path
+path=('/usr/lib/node_modules' $path)
+export PATH
