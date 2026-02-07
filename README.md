@@ -14,6 +14,8 @@ You must install the following tools before applying these configurations.
 *   **[tree-sitter](https://github.com/tree-sitter/tree-sitter):** Parser generator tool.
 *   **[firefox](https://www.firefox.com/en-US/):** Browser.
 *   **[yay](https://github.com/Jguer/yay):** Package manager for AUR.
+*   **[Node.js](https://github.com/nodejs/node):** Run JavaScript Everywhere.
+*   **[npm](https://github.com/npm/cli):** JavaScript package manager.
 
 ### Shell & Terminal
 *   **[zsh](https://www.zsh.org/)**: The shell.
@@ -44,8 +46,8 @@ You must install the following tools before applying these configurations.
 
 2.  **Install dependencies (Arch Linux example):**
     ```sh
-    sudo pacman -S stow git zsh kitty fzf zoxide lazygit neovim ripgrep fd gcc make rust unzip firefox yay yt-dlp
-    cargo install --locked tree-sitter-cli
+    sudo pacman -S stow git zsh kitty fzf zoxide lazygit neovim ripgrep fd gcc make unzip firefox yay yt-dlp nodejs npm
+    npm install tree-sitter-cli
     ```
 
 3.  **Apply configurations with Stow:**
