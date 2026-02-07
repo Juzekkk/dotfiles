@@ -63,7 +63,7 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
-alias ls='ls -a --color'
+alias ls='ls --color'
 alias vim='nvim'
 alias c='clear'
 alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 /dev/video0"
