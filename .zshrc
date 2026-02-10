@@ -70,6 +70,12 @@ alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 /dev/video
 alias glog='git log --oneline --decorate --graph --all'
 alias gs='git status --short --branch'
 
+mcp() {
+  mkdir -p "$(dirname "$2")" && cp "$@"
+}
+
+
+
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
