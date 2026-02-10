@@ -25,6 +25,7 @@ return {
         keys = {
             { "<Leader>mtn", ":EasyTablesCreateNew ", desc = "Create New Table (e.g. 5x4)" },
             { "<Leader>mti", "<cmd>EasyTablesImportThisTable<CR>", desc = "Import/Edit Current Table" },
+            { "<Leader>mte", ":ExportTable<CR>", desc = "Export Current Table" },
         },
         config = function()
             require("easytables").setup({
