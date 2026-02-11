@@ -5,7 +5,7 @@ return {
         -- We use a function to safely append to the list without overwriting it
         opts = function(_, opts)
             opts.ensure_installed = opts.ensure_installed or {}
-            vim.list_extend(opts.ensure_installed, { "typst" })
+            vim.list_extend(opts.ensure_installed, { "marksman" })
         end,
     },
     -- 2. Preview
@@ -30,6 +30,7 @@ return {
 
             -- 2. Define Keymap ONLY for Markdown Files
             vim.api.nvim_create_autocmd("FileType", {
+                pattern = "markdown",
                 desc = "Markdown Preview Keymap",
                 callback = function(event)
                     -- { buffer = event.buf } makes the mapping exist ONLY in this specific buffer
@@ -51,12 +52,6 @@ return {
             vim.api.nvim_create_autocmd("FileType", {
                 desc = "Markdown Preview Keymap",
                 callback = function(event)
-                    -- { buffer = event.buf } makes the mapping exist ONLY in this specific buffer
-                    vim.keymap.set("n", "<leader>p", "<cmd>MarkdownPreview<cr>", {
-                        desc = "Start Markdown Preview",
-                        buffer = event.buf,
-                        silent = true
-                    })
                     vim.keymap.set("n", "<Leader>tn", ":EasyTablesCreateNew ", {
                         desc = "Create New Table (e.g. 5x4)",
                     })
