@@ -1,6 +1,6 @@
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
+--------------------------------------------------------------------------------
+-- GLOBAL KEYMAPS
+--------------------------------------------------------------------------------
 local keymap = vim.keymap
 
 -- Clear search highlights on Escape
