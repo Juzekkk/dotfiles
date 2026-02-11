@@ -6,7 +6,7 @@ return {
     },
     lazy = true,
     config = function()
-      local dap = require("dap")
+      require("dap")
       vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "red" })
       vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "blue" })
       vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "orange" })

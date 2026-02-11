@@ -19,9 +19,15 @@ return {
         end,
     },
     {
+        "williamboman/mason.nvim",
+        opts = function(_, opts)
+            opts.ensure_installed = opts.ensure_installed or {}
+            vim.list_extend(opts.ensure_installed, { "marksman" })
+        end,
+    },
+    {
         "Myzel394/easytables.nvim",
         ft = "markdown",
-        -- 'keys' belongs to lazy.nvim, not inside setup()
         keys = {
             { "<Leader>mtn", ":EasyTablesCreateNew ", desc = "Create New Table (e.g. 5x4)" },
             { "<Leader>mti", "<cmd>EasyTablesImportThisTable<CR>", desc = "Import/Edit Current Table" },

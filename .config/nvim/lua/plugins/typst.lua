@@ -38,7 +38,7 @@ return {
     },
   },
 
-  -- 4. Add a previewer (highly recommended for Typst)
+  -- 4. Add a previewer
   {
     "chomosuke/typst-preview.nvim",
     ft = "typst",

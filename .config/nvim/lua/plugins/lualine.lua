@@ -20,6 +20,7 @@ local function macro()
 end
 
 return {
+  -- status line plugin --
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
   config = function()
