@@ -1,50 +1,74 @@
 return {
+    -- 1. Syntax Highlighting
     {
-        "iamcco/markdown-preview.nvim",
-        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-        ft = { "markdown" },
-        build = "cd app && npm install",
-        keys = {
-            { "<leader>mp", "<cmd>MarkdownPreview<cr>", desc = "Start Markdown Preview" },
-        },
-        init = function()
-            vim.cmd([[
-                function OpenMarkdownPreview (url)
-                    " shellescape() protects against URLs with special chars
-                    " The '&' allows Neovim to keep running the server
-                    execute "silent ! firefox -P typst-preview -new-window " . shellescape(a:url) . " &"
-                endfunction
-            ]])
-            vim.g.mkdp_browserfunc = 'OpenMarkdownPreview'
-        end,
-    },
-    {
-        "williamboman/mason.nvim",
+        "nvim-treesitter/nvim-treesitter",
+        -- We use a function to safely append to the list without overwriting it
         opts = function(_, opts)
             opts.ensure_installed = opts.ensure_installed or {}
-            vim.list_extend(opts.ensure_installed, { "marksman" })
+            vim.list_extend(opts.ensure_installed, { "typst" })
         end,
     },
+    -- 2. Preview
+    {
+        "iamcco/markdown-preview.nvim",
+        -- Lazy load when these commands are called
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        -- Lazy load when opening a markdown file
+        ft = { "markdown" },
+        build = "cd app && npm install",
+        init = function()
+            -- 1. Browser Configuration (variables must be set before plugin loads)
+            vim.cmd([[
+            function! OpenMarkdownPreview (url)
+            execute "silent ! firefox -P typst-preview -new-window " . shellescape(a:url) . " &"
+            endfunction
+            ]])
+            vim.g.mkdp_browserfunc = 'OpenMarkdownPreview'
+            -- Prevent the plugin from closing the preview when you switch buffers
+            -- (Optional, but usually desired workflow)
+            vim.g.mkdp_auto_close = 0
+
+            -- 2. Define Keymap ONLY for Markdown Files
+            vim.api.nvim_create_autocmd("FileType", {
+                desc = "Markdown Preview Keymap",
+                callback = function(event)
+                    -- { buffer = event.buf } makes the mapping exist ONLY in this specific buffer
+                    vim.keymap.set("n", "<leader>p", "<cmd>MarkdownPreview<cr>", {
+                        desc = "Start Markdown Preview",
+                        buffer = event.buf,
+                        silent = true
+                    })
+                end,
+            })
+        end,
+    },
+    -- Easier Table Editing
     {
         "Myzel394/easytables.nvim",
         ft = "markdown",
-        keys = {
-            {
-                "<Leader>mtn",
-                ":EasyTablesCreateNew ",
-                desc = "Create New Table (e.g. 5x4)",
-            },
-            {
-                "<Leader>mti",
-                "<cmd>EasyTablesImportThisTable<CR>",
-                desc = "Import/Edit Current Table",
-            },
-            {
-                "<Leader>mte",
-                ":ExportTable<CR>",
-                desc = "Export Current Table",
-            },
-        },
+        init = function()
+            -- Define Keymap ONLY for Markdown Files
+            vim.api.nvim_create_autocmd("FileType", {
+                desc = "Markdown Preview Keymap",
+                callback = function(event)
+                    -- { buffer = event.buf } makes the mapping exist ONLY in this specific buffer
+                    vim.keymap.set("n", "<leader>p", "<cmd>MarkdownPreview<cr>", {
+                        desc = "Start Markdown Preview",
+                        buffer = event.buf,
+                        silent = true
+                    })
+                    vim.keymap.set("n", "<Leader>tn", ":EasyTablesCreateNew ", {
+                        desc = "Create New Table (e.g. 5x4)",
+                    })
+                    vim.keymap.set("n", "<Leader>ti", "<cmd>EasyTablesImportThisTable<cr>", {
+                        desc = "Import/Edit Current Table",
+                    })
+                    vim.keymap.set("n", "<Leader>te", "<cmd>ExportTable<cr>", {
+                        desc = "Export Current Table",
+                    })
+                end,
+            })
+        end,
         config = function()
             require("easytables").setup({
                 -- 'set_mappings' belongs directly in setup(), not inside a nested 'opts'
