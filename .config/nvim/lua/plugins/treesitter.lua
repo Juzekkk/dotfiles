@@ -23,8 +23,15 @@ return {
               ["af"] = "@function.outer",
               ["if"] = "@function.inner",
               ["ac"] = "@class.outer",
-              ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
-              ["as"] = { query = "@local.scope", query_group = "locals", desc = "Select language scope" },
+              ["ic"] = {
+                  query = "@class.inner",
+                  desc = "Select inner part of a class region",
+              },
+              ["as"] = {
+                  query = "@local.scope",
+                  query_group = "locals",
+                  desc = "Select language scope",
+              },
             },
             include_surrounding_whitespace = true,
           },
@@ -57,8 +64,16 @@ return {
   {
     "Wansmer/treesj",
     keys = {
-      { "gs", function() require("treesj").toggle() end, mode = "n" },
-      { "gS", function() require("treesj").toggle { split = { recursive = true } } end, mode = "n" }
+      {
+          "gs",
+          function() require("treesj").toggle() end,
+          mode = "n",
+      },
+      {
+          "gS",
+          function() require("treesj").toggle {split = {recursive = true}} end,
+          mode = "n",
+      }
     },
     dependencies = {
       "nvim-treesitter/nvim-treesitter",

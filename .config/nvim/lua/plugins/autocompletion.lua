@@ -54,7 +54,11 @@ return {
                 },
                 formatting = {
                     format = function(entry, vim_item)
-                        vim_item.kind = string.format("%s %s", kind_icons[vim_item.kind], vim_item.kind)
+                        vim_item.kind = string.format(
+                            "%s %s",
+                            kind_icons[vim_item.kind],
+                            vim_item.kind
+                        )
                         vim_item.menu = ({
                             nvim_lsp = "",
                             luasnip = "",
@@ -75,16 +79,24 @@ return {
                     completeopt = "menu,menuone,noinsert",
                 },
                 mapping = {
-                    ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
-                    ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+                    ["<C-n>"] = cmp.mapping.select_next_item({
+                        behavior = cmp.SelectBehavior.Insert,
+                    }),
+                    ["<C-p>"] = cmp.mapping.select_prev_item({
+                        behavior = cmp.SelectBehavior.Insert,
+                    }),
                     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-d>"] = cmp.mapping.scroll_docs(4),
                     ["<CR>"] = cmp.mapping.confirm({ select = true }),
                     ["<Down>"] = {
-                        i = cmp.mapping.select_next_item({ behavior = types.cmp.SelectBehavior.Select }),
+                        i = cmp.mapping.select_next_item({
+                            behavior = types.cmp.SelectBehavior.Select,
+                        }),
                     },
                     ["<Up>"] = {
-                        i = cmp.mapping.select_prev_item({ behavior = types.cmp.SelectBehavior.Select }),
+                        i = cmp.mapping.select_prev_item({
+                            behavior = types.cmp.SelectBehavior.Select,
+                        }),
                     },
                     ["<C-space>"] = function()
                         if cmp.visible() then

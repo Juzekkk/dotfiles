@@ -10,21 +10,57 @@ return {
     { "<leader>z", function() require("fzf-lua").zoxide() end, desc = "Find zoxide" },
 
     -- LSP
-    { "<leader>j", function() require("fzf-lua").lsp_document_symbols() end, desc = "Find lsp symbols (jump)" },
-    { "<leader>J", function() require("fzf-lua").lsp_live_workspace_symbols() end, desc = "Find lsp workspace symbols (Jump) " },
-    { "<leader>i", function() require("fzf-lua").lsp_document_diagnostics() end, desc = "Find diagnostics" },
-    { "<leader>I", function() require("fzf-lua").lsp_workspace_diagnostics() end, desc = "Find workspace diagnostics" },
+    {
+        "<leader>j",
+        function() require("fzf-lua").lsp_document_symbols() end,
+        desc = "Find lsp symbols (jump)",
+    },
+    {
+        "<leader>J",
+        function() require("fzf-lua").lsp_live_workspace_symbols() end,
+        desc = "Find lsp workspace symbols (Jump) ",
+    },
+    {
+        "<leader>i",
+        function() require("fzf-lua").lsp_document_diagnostics() end,
+        desc = "Find diagnostics",
+    },
+    {
+        "<leader>I",
+        function() require("fzf-lua").lsp_workspace_diagnostics() end,
+        desc = "Find workspace diagnostics",
+    },
     { "gd", function() require("fzf-lua").lsp_definitions() end, },
     { "gr", function() require("fzf-lua").lsp_references() end, },
     { "go", function() require("fzf-lua").lsp_code_actions() end },
     -- useful with rust
-    { "gi", function() require("fzf-lua").lsp_implementations() end, desc = "lsp implementations" },
-    { "gy", function() require("fzf-lua").lsp_typedefs() end, desc = "lsp implementations" },
+    {
+        "gi",
+        function() require("fzf-lua").lsp_implementations() end,
+        desc = "lsp implementations",
+    },
+    {
+        "gy",
+        function() require("fzf-lua").lsp_typedefs() end,
+        desc = "lsp implementations",
+    },
 
     -- not frequent keymaps I put under <leader>s namespace
-    { "<leader>sc", function() require("fzf-lua").git_bcommits() end, desc = "Find buffer commits" },
-    { "<leader>sb", function() require("fzf-lua").git_branches() end, desc = "Find git branches" },
-    { "<leader>sC", function() require("fzf-lua").git_commits() end, desc = "Find commits" },
+    {
+        "<leader>sc",
+        function() require("fzf-lua").git_bcommits() end,
+        desc = "Find buffer commits",
+    },
+    {
+        "<leader>sb",
+        function() require("fzf-lua").git_branches() end,
+        desc = "Find git branches",
+    },
+    {
+        "<leader>sC",
+        function() require("fzf-lua").git_commits() end,
+        desc = "Find commits",
+    },
 
   },
   config = function()

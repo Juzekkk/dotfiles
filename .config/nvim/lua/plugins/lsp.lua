@@ -50,8 +50,12 @@ return {
 
             -- add/extend mappings
             opts.mapping = opts.mapping or cmp.mapping.preset.insert({})
-            opts.mapping["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-            opts.mapping["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
+            opts.mapping["<C-n>"] = cmp.mapping.select_next_item({
+                behavior = cmp.SelectBehavior.Insert,
+            })
+            opts.mapping["<C-p>"] = cmp.mapping.select_prev_item({
+                behavior = cmp.SelectBehavior.Insert,
+            })
         end,
     }
 }
