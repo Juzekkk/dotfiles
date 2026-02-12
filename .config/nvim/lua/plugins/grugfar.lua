@@ -1,3 +1,4 @@
+-- Find and replace --
 return {
   "MagicDuck/grug-far.nvim",
   config = function()
