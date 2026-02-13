@@ -66,7 +66,8 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 alias ls='ls --color'
 alias vim='nvim'
 alias c='clear'
-alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 /dev/video0"
+alias replay="obs --startreplaybuffer --minimize-to-tray &>/dev/null &; disown"
+alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 /dev/video0 &>/dev/null &; disown"
 alias glog='git log --oneline --decorate --graph --all'
 alias gs='git status --short --branch'
 
