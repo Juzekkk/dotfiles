@@ -52,13 +52,13 @@ return {
             vim.api.nvim_create_autocmd("FileType", {
                 desc = "Markdown Preview Keymap",
                 callback = function(event)
-                    vim.keymap.set("n", "<Leader>tn", ":EasyTablesCreateNew ", {
+                    vim.keymap.set("n", "<Leader>mn", ":EasyTablesCreateNew ", {
                         desc = "Create New Table (e.g. 5x4)",
                     })
-                    vim.keymap.set("n", "<Leader>ti", "<cmd>EasyTablesImportThisTable<cr>", {
+                    vim.keymap.set("n", "<Leader>mi", "<cmd>EasyTablesImportThisTable<cr>", {
                         desc = "Import/Edit Current Table",
                     })
-                    vim.keymap.set("n", "<Leader>te", "<cmd>ExportTable<cr>", {
+                    vim.keymap.set("n", "<Leader>me", "<cmd>ExportTable<cr>", {
                         desc = "Export Current Table",
                     })
                 end,
