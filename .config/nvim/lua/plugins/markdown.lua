@@ -1,14 +1,31 @@
 return {
-    -- 1. Syntax Highlighting
+    -- Syntax Highlighting
     {
         "nvim-treesitter/nvim-treesitter",
         -- We use a function to safely append to the list without overwriting it
         opts = function(_, opts)
             opts.ensure_installed = opts.ensure_installed or {}
+            vim.list_extend(opts.ensure_installed, { "markdown" })
+        end,
+    },
+    -- Mason
+    {
+        "williamboman/mason.nvim",
+        opts = function(_, opts)
+            opts.ensure_installed = opts.ensure_installed or {}
             vim.list_extend(opts.ensure_installed, { "marksman" })
         end,
     },
-    -- 2. Preview
+    -- In editor preview
+    {
+        'MeanderingProgrammer/render-markdown.nvim',
+        dependencies = {
+            'nvim-treesitter/nvim-treesitter',
+            'nvim-tree/nvim-web-devicons',
+        },
+        opts = {},
+    },
+    -- Preview
     {
         "iamcco/markdown-preview.nvim",
         -- Lazy load when these commands are called
