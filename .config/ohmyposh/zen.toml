@@ -10,6 +10,17 @@ console_title_template = '{{ .Shell }} in {{ .Folder }}'
   newline = true
 
   [[blocks.segments]]
+    type = 'python'
+    style = 'plain'
+    foreground = 'lightBlue'
+    background = 'transparent'
+    template = '  '
+
+    [blocks.segments.properties]
+      display_mode = 'environment'
+      fetch_virtual_env = true
+
+  [[blocks.segments]]
     type = 'path'
     style = 'plain'
     background = 'transparent'
