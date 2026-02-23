@@ -45,6 +45,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
     -- Get the client (language server) that just attached
     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
+    if client and client.server_capabilities.semanticTokensProvider then
+        vim.lsp.semantic_tokens.start(event.buf, client.id)
+    end
     -- Check if this server actually supports highlighting (some don't)
     if client and client.server_capabilities.documentHighlightProvider then
 
