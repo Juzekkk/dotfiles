@@ -18,6 +18,18 @@ local function lsp_status()
   return "LSP: " .. table.concat(names, ", ")
 end
 
+-- Helper function: Returns current python virtual environment if applicable
+local function python_env()
+  local venv = vim.env.CONDA_DEFAULT_ENV
+    or vim.env.VIRTUAL_ENV
+
+  if not venv then
+    return ""
+  end
+
+  return " " .. vim.fn.fnamemodify(venv, ":t")
+end
+
 -- Helper function: Returns a string if a macro is currently being recorded
 local function macro()
   local reg = vim.fn.reg_recording()
@@ -72,8 +84,14 @@ return {
         },
         -- Right side sections
         lualine_x = {
-          { lsp_status }, -- Custom active LSP list defined above
-          { "filetype" }, -- e.g. "lua"
+            {
+                python_env,
+                cond = function()
+                    return vim.env.VIRTUAL_ENV ~= nil
+                end,
+            },
+            { lsp_status }, -- Custom active LSP list defined above
+            { "filetype" }, -- e.g. "lua"
         },
         lualine_y = { { "progress" }, { "location" } }, -- % through file and Line:Column
         lualine_z = {}, -- Empty section
