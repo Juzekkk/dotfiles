@@ -61,26 +61,37 @@ return {
                     throttle = 0,
                 },
 
+                window = {
+                    completion = cmp.config.window.bordered({
+                        max_height = 8,
+                        max_width = 35,
+                    }),
+                    documentation = cmp.config.window.bordered({
+                        max_height = 12,
+                        max_width = 40,
+                    }),
+                },
                 -- UI Formatting for the completion menu
                 formatting = {
                     format = function(entry, vim_item)
-                        -- Concatenate the icon with the kind name (e.g., "󰊕 Function")
-                        vim_item.kind = string.format(
-                            "%s %s",
-                            kind_icons[vim_item.kind],
-                            vim_item.kind
-                        )
-                        -- Hide the source text (like "nvim_lsp") in the menu to keep it clean
+                        vim_item.kind = string.format("%s %s", kind_icons[vim_item.kind], vim_item.kind)
                         vim_item.menu = ({
                             nvim_lsp = "",
                             luasnip = "",
                             nvim_lua = "",
                             latex_symbolc = "",
                         })[entry.source.name]
+
+                        -- clamp the displayed text
+                        local max = 30
+                        if #vim_item.abbr > max then
+                            vim_item.abbr = vim_item.abbr:sub(1, max - 1) .. "…"
+                        end
+
                         return vim_item
                     end,
                     expandable_indicator = false,
-                    fields = { "abbr", "kind", "menu" }, -- Order of fields in the menu
+                    fields = { "abbr", "kind", "menu" },
                 },
 
                 -- How to handle snippet expansion
@@ -93,6 +104,7 @@ return {
                 -- Completion behavior options
                 completion = {
                     completeopt = "menu,menuone,noinsert", -- Show menu even for one item, don't insert text automatically
+                    autocomplete = false,
                 },
 
                 -- Keymappings for the completion menu
@@ -108,6 +120,14 @@ return {
                     -- Scroll documentation window
                     ["<C-u>"] = cmp.mapping.scroll_docs(-4),
                     ["<C-d>"] = cmp.mapping.scroll_docs(4),
+                    -- open docs manually with Ctrl-l
+                    ["<C-l>"] = cmp.mapping(function()
+                        if not cmp.visible_docs() then
+                            cmp.open_docs()
+                        else
+                            cmp.scroll_docs(4)
+                        end
+                    end, { "i", "c" }),
                     -- Confirm selection with Enter
                     ["<CR>"] = cmp.mapping.confirm({ select = true }),
 
@@ -139,12 +159,6 @@ return {
                     { name = "path" },      -- Filesystem paths (type ./ to activate)
                     { name = "dap",     max_item_count = 10 } -- Debugger variables
                 }),
-
-                -- Visual style for the completion and docs windows (add borders)
-                window = {
-                    completion = cmp.config.window.bordered(),
-                    documentation = cmp.config.window.bordered(),
-                },
 
                 -- Matching algorithm settings
                 matching = {
