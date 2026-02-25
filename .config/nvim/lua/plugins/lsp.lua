@@ -28,10 +28,6 @@ return {
             vim.keymap.set("n", "<leader>lm", "<cmd>Mason<CR>", { desc = "Mason" })
             require("mason").setup()
             require("mason-lspconfig").setup()
-            -- still can install and setup servers manually without mason
-            -- rust analyzer ships with rustup so we don't want to install it with mason)
-            -- just install it manually and then enable it via vim.lsp
-            vim.lsp.enable("rust_analyzer")
         end,
     },
     {

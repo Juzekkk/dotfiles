@@ -9,7 +9,7 @@ return {
       { "<F10>", function() require("dap").step_over() end, desc = "DAP Step Over" },
       { "<F11>", function() require("dap").step_into() end, desc = "DAP Step Into" },
       { "<F12>", function() require("dap").step_out() end, desc = "DAP Step Out" },
-      { "<leader>b", function() require("dap").toggle_breakpoint() end, desc = "DAP Toggle Breakpoint" },
+      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "DAP Toggle Breakpoint" },
       { "<leader>dr", function() require("dap").repl.open() end, desc = "DAP REPL" },
     },
     config = function()
