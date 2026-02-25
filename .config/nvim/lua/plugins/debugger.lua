@@ -1,33 +1,80 @@
 return {
-  -- 1. nvim-dap: The core Debug Adapter Protocol client
-  -- This allows Neovim to communicate with debuggers (for Go, Python, Lua, etc.)
   {
     "mfussenegger/nvim-dap",
     dependencies = {
-      "jbyuki/one-small-step-for-vimkind", -- A specific adapter for debugging Neovim Lua configurations
+      "jbyuki/one-small-step-for-vimkind",
     },
-    lazy = true,
+    keys = {
+      { "<F5>",  function() require("dap").continue() end, desc = "DAP Continue" },
+      { "<F10>", function() require("dap").step_over() end, desc = "DAP Step Over" },
+      { "<F11>", function() require("dap").step_into() end, desc = "DAP Step Into" },
+      { "<F12>", function() require("dap").step_out() end, desc = "DAP Step Out" },
+      { "<leader>b", function() require("dap").toggle_breakpoint() end, desc = "DAP Toggle Breakpoint" },
+      { "<leader>dr", function() require("dap").repl.open() end, desc = "DAP REPL" },
+    },
     config = function()
-      require("dap")
-      -- Define custom icons (signs) for the gutter/sidebar to show breakpoint status
-      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "red" })          -- Standard breakpoint
-      vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "blue" })  -- Conditional breakpoint (e.g. break if x > 5)
-      vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "orange" }) -- Breakpoint that failed to attach or is invalid
-      vim.fn.sign_define("DapStopped", { text = "󰁕", texthl = "green" })           -- The line where execution is currently paused
+      local dap = require("dap")
+      dap.defaults.fallback.terminal_win_cmd = "belowright 15split new"
+
+      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "DiagnosticError" })
+      vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "DiagnosticInfo" })
+      vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "DiagnosticWarn" })
+      vim.fn.sign_define("DapStopped", { text = "󰁕", texthl = "DiagnosticOk" })
     end,
   },
-  -- 2. debugmaster.nvim: A helper plugin to manage debug UI layouts
+
   {
-    "miroshQa/debugmaster.nvim",
+    "rcarriga/nvim-dap-ui",
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "nvim-neotest/nvim-nio",
+    },
     config = function()
-      local dm = require("debugmaster")
-      -- Set a keybinding (<leader> + d) to toggle the debug interface/layout on and off
-      vim.keymap.set({ "n", "v" }, "<leader>d", dm.mode.toggle, {
-        nowait = true,
-        desc = "Debug mode toggle"
+      local dap = require("dap")
+      local dapui = require("dapui")
+
+      dapui.setup({
+        icons = { expanded = "▾", collapsed = "▸", current_frame = "▸" },
+        layouts = {
+          {
+            elements = {
+              { id = "scopes", size = 0.33 },
+              { id = "stacks", size = 0.33 },
+              { id = "watches", size = 0.17 },
+              { id = "breakpoints", size = 0.17 },
+            },
+            size = 40,
+            position = "left",
+          },
+          {
+            elements = {
+              { id = "repl", size = 0.5 },
+              { id = "console", size = 0.5 },
+            },
+            size = 12,
+            position = "bottom",
+          },
+        },
+        floating = {
+          border = "rounded",
+          mappings = { close = { "q", "<Esc>" } },
+        },
       })
-      -- Enable integration with the Lua debugger (OSV / one-small-step) defined in the first block
-      dm.plugins.osv_integration.enabled = true
-    end
-  }
+
+      -- Open UI on start
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+
+      -- IMPORTANT: do NOT auto-close on exit → keeps console open
+      -- dap.listeners.before.event_terminated["dapui_config"] = function()
+      --   dapui.close()
+      -- end
+      -- dap.listeners.before.event_exited["dapui_config"] = function()
+      --   dapui.close()
+      -- end
+
+      vim.keymap.set("n", "<leader>du", function() dapui.toggle() end, { desc = "DAP UI Toggle" })
+    end,
+  },
 }
