@@ -10,7 +10,12 @@ return {
   },
   lazy = false,
   keys = {
-    { "<leader>e", "<cmd>Neotree toggle reveal<CR>", mode = "n", desc = "Toggle file tree" }
+    {
+        "<leader>e",
+        "<cmd>Neotree toggle reveal<CR>",
+        mode = "n",
+        desc = "Toggle file tree",
+    }
   },
   config = function()
     require("neo-tree").setup {
@@ -23,6 +28,7 @@ return {
           hide_dotfiles = false,
           hide_gitignored = false,
           hide_hidden = false,
+          hide_by_name = { ".venv", "__pycache__", ".git" }
         },
       },
       window = {
