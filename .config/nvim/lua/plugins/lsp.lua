@@ -55,26 +55,4 @@ return {
             },
         },
     },
-    {
-        "hrsh7th/nvim-cmp",
-        opts = function(_, opts)
-            local cmp = require("cmp")
-
-            -- keep your sources customization
-            opts.sources = opts.sources or {}
-            table.insert(opts.sources, {
-                name = "lazydev",
-                group_index = 0,
-            })
-
-            -- add/extend mappings
-            opts.mapping = opts.mapping or cmp.mapping.preset.insert({})
-            opts.mapping["<C-n>"] = cmp.mapping.select_next_item({
-                behavior = cmp.SelectBehavior.Insert,
-            })
-            opts.mapping["<C-p>"] = cmp.mapping.select_prev_item({
-                behavior = cmp.SelectBehavior.Insert,
-            })
-        end,
-    }
 }
