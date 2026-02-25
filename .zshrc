@@ -13,6 +13,9 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Source ffmpeg_compress plugin
 source ~/.config/zsh/plugins/ffmpeg_compress.plugin.zsh
 
+# Source rust env
+source "$HOME/.cargo/env"
+
 # Add in zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
@@ -66,7 +69,6 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 alias ls='ls --color'
 alias vim='nvim'
 alias c='clear'
-alias record=""
 alias replay="obs --startreplaybuffer --minimize-to-tray &>/dev/null &; disown"
 alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 --ovc=nvenc /dev/video0 &>/dev/null &; disown"
 alias glog='git log --oneline --decorate --graph --all'
