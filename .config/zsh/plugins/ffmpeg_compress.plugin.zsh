@@ -100,11 +100,10 @@ ffmpeg_compress() {
         echo "🎬 Processing '$base_name'..."
         echo "   Target: $target_size_str | Output: $final_output_file"
 
-        # Pass 1 (-y to overwrite logs)
-        ffmpeg -y -i "$file" -c:v libx264 -b:v "$video_bitrate" -pass 1 -an -f null /dev/null -hide_banner -loglevel error
-        
-        # Pass 2 (-y to overwrite output)
-        ffmpeg -y -i "$file" -c:v libx264 -b:v "$video_bitrate" -pass 2 -c:a aac -b:a "${audio_bitrate_k}k" "$final_output_file" -hide_banner -loglevel error
+        ffmpeg -y -hwaccel cuda -i "$file" \
+            -c:v h264_nvenc -b:v "$video_bitrate" -rc vbr_hq -preset p5 \
+            -c:a aac -b:a "${audio_bitrate_k}k" \
+            "$final_output_file" -hide_banner -loglevel error
 
         rm -f ffmpeg2pass-0.log ffmpeg2pass-0.log.mbtree
         echo "✅ Done."
