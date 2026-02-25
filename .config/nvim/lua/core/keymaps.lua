@@ -16,7 +16,7 @@ keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right split" })
 keymap.set("i", "<C-;>", "<C-o>l", { desc = "Move one character left" })
 
 -- Show line diagnostics
-vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, {
+vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, {
   desc = "Show line diagnostics"
 })
 -- Exit insert mode in terminal --
