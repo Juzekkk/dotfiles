@@ -71,7 +71,7 @@ alias replay="obs --startreplaybuffer --minimize-to-tray &>/dev/null &; disown"
 alias camera="mpv --profile=low-latency --untimed --window-scale=0.60 --ovc=nvenc /dev/video0 &>/dev/null &; disown"
 alias glog='git log --oneline --decorate --graph --all'
 alias gs='git status --short --branch'
-alias st='systemd-manager-tui'
+alias st='systemctl-tui'
 
 mcp() {
   mkdir -p "$(dirname "$2")" && cp "$@"
