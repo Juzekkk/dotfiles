@@ -13,7 +13,7 @@ vim.opt.splitbelow = true
 vim.opt.swapfile = false
 vim.opt.undofile = true
 vim.opt.clipboard = "unnamedplus"
-vim.opt.scrolloff = 20
+vim.opt.scrolloff = 10
 
 -- Indents settings
 vim.opt.tabstop = 4
@@ -23,7 +23,6 @@ vim.opt.smartindent = true
 
 -- UI
 vim.opt.showcmd = false
-vim.o.winborder = "rounded"
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.showtabline = 1

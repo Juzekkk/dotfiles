@@ -35,39 +35,6 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.cmd([[autocmd FileType * set formatoptions-=ro]])
 
 --------------------------------------------------------------------------------
--- LSP (LANGUAGE SERVER) AUTOMATION
---------------------------------------------------------------------------------
-
--- This block runs every time an LSP attaches to a buffer (e.g., opening a Python file).
--- It sets up "Document Highlighting" (highlighting same variables under cursor).
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(event)
-    -- Get the client (language server) that just attached
-    local client = vim.lsp.get_client_by_id(event.data.client_id)
-
-    if client and client.server_capabilities.semanticTokensProvider then
-        vim.lsp.semantic_tokens.start(event.buf, client.id)
-    end
-    -- Check if this server actually supports highlighting (some don't)
-    if client and client.server_capabilities.documentHighlightProvider then
-
-      -- 1. When the cursor rests (holds) on a word...
-      vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-        buffer = event.buf, -- Only for this specific buffer
-        callback = vim.lsp.buf.document_highlight, -- Highlight all instances of the word
-      })
-
-      -- 2. When the cursor moves away...
-      vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-        buffer = event.buf,
-        callback = vim.lsp.buf.clear_references, -- Clear the highlights
-      })
-
-    end
-  end,
-})
-
---------------------------------------------------------------------------------
 -- WINDOW MANAGEMENT
 --------------------------------------------------------------------------------
 

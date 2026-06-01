@@ -1,17 +1,11 @@
 {
   "suggest.noselect": true,
-  "suggest.enablePreview": true,
-  "suggest.floatConfig": {
-    "border": true,
-    "rounded": true,
-    "maxWidth": 35,
-    "maxHeight": 8
-  },
   "hover.floatConfig": {
-    "border": true,
-    "rounded": true,
-    "maxWidth": 80,
+    "maxWidth": 40,
     "maxHeight": 20
+  },
+  "suggest.floatConfig": {
+      "maxWidth": 30
   },
   "diagnostic.errorSign": "E",
   "diagnostic.warningSign": "W",
@@ -20,25 +14,10 @@
   "inlayHint.enable": true,
 
   "languageserver": {
-    "tinymist": {
-      "command": "tinymist",
-      "filetypes": ["typst"],
-      "initializationOptions": {
-        "exportPdf": "onType",
-        "outputPath": "$root/target/$dir/$name",
-        "formatterMode": "typstyle"
-      }
-    },
-    "lua": {
-      "command": "lua-language-server",
-      "filetypes": ["lua"],
-      "settings": {
-        "Lua": {
-          "diagnostics": { "globals": ["vim"] },
-          "telemetry": { "enable": false },
-          "hint": { "enable": true }
-        }
-      }
+      "rust": {
+          "command": "rust-analyzer",
+          "filetypes": ["rust"],
+          "rootPatterns": ["Cargo.toml"]
     }
   }
 }

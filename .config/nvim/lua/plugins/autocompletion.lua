@@ -18,8 +18,6 @@ return {
                 "coc-lua",
                 "coc-typst",
                 "coc-pyright",
-                "coc-rust-analyzer",
-                "coc-rls",
                 "coc-markdownlint",
             }
         end,
@@ -121,16 +119,6 @@ return {
             require("nvim-autopairs").setup({})
             -- Coc obsługuje enter samodzielnie (patrz mapowanie <CR> wyżej),
             -- więc NIE podpinamy tutaj cmp_autopairs
-        end,
-    },
-
-    -- Surround - bez zmian
-    {
-        "kylechui/nvim-surround",
-        version = "^3.0.0",
-        event = "VeryLazy",
-        config = function()
-            require("nvim-surround").setup({})
         end,
     },
 
