@@ -1,23 +1,4 @@
 return {
-  -- 1. Syntax Highlighting
-  {
-    "nvim-treesitter/nvim-treesitter",
-    -- We use a function to safely append to the list without overwriting it
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, { "typst" })
-    end,
-  },
-
-  -- 2. Mason
-  {
-    "williamboman/mason.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, { "tinymist" })
-    end,
-  },
-
   -- 3. LSP Config
   {
     "neovim/nvim-lspconfig",

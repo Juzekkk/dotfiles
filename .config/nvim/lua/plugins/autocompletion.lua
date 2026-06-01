@@ -1,240 +1,147 @@
--- Define a table of icons to visually represent different kinds of completion items
--- (e.g., variables, functions, classes) in the completion menu.
-local kind_icons = {
-    Text = "",
-    Method = "󰆧",
-    Function = "󰊕",
-    Constructor = "",
-    Field = "󰇽",
-    Variable = "󰂡",
-    Class = "󰠱",
-    Interface = "",
-    Module = "",
-    Property = "󰜢",
-    Unit = "",
-    Value = "󰎠",
-    Enum = "",
-    Keyword = "󰌋",
-    Snippet = "",
-    Color = "󰏘",
-    File = "󰈙",
-    Reference = "",
-    Folder = "󰉋",
-    EnumMember = "",
-    Constant = "󰏿",
-    Struct = "",
-    Event = "",
-    Operator = "󰆕",
-    TypeParameter = "󰅲",
-}
-
 return {
-    -- 1. Configuration for nvim-cmp (The Autocompletion Engine)
+    -- coc.nvim - kompletna wymiana za Mason + nvim-lspconfig + nvim-cmp
     {
-        "hrsh7th/nvim-cmp",
-        event = "InsertEnter", -- Load this plugin only when entering Insert mode to improve startup time
-        dependencies = {
-            "L3MON4D3/LuaSnip",        -- Snippet engine
-            "saadparwaiz1/cmp_luasnip", -- Source for LuaSnip
-            "hrsh7th/cmp-nvim-lsp",    -- Source for LSP completion
-            "hrsh7th/cmp-path",        -- Source for filesystem paths
-            "rcarriga/cmp-dap"         -- Source for Debug Adapter Protocol (DAP)
-        },
-        config = function()
-            local cmp = require("cmp")
-            local types = require('cmp.types')
-            local luasnip = require("luasnip")
-            local compare = cmp.config.compare
+        "neoclide/coc.nvim",
+        branch = "release",
+        lazy = false,
+        event = { "BufReadPost", "BufNewFile" },
+        build = "npm ci",
+        init = function()
+            vim.g.coc_global_extensions = {
+                "coc-json",
+                "coc-yaml",
+                "coc-snippets",
+                "coc-sh",
+                "coc-marketplace",
 
-            -- Setup options for cmp
-            local opts = {
-                -- Condition to enable cmp:
-                -- 1. Enabled in standard buffers (not prompt buffers)
-                -- 2. OR enabled if we are currently in a DAP (debugger) session
-                enabled = function()
-                    return vim.api.nvim_get_option_value("buftype", { buf = 0 }) ~= "prompt"
-                    or require("cmp_dap").is_dap_buffer()
-                end,
-                -- Performance settings to make completion feel instant
-                performance = {
-                    debounce = 0,
-                    throttle = 0,
-                },
-
-                window = {
-                    completion = cmp.config.window.bordered({
-                        max_height = 8,
-                        max_width = 35,
-                    }),
-                    documentation = cmp.config.window.bordered({
-                        max_height = 12,
-                        max_width = 40,
-                    }),
-                },
-                -- UI Formatting for the completion menu
-                formatting = {
-                    format = function(entry, vim_item)
-                        vim_item.kind = string.format("%s %s", kind_icons[vim_item.kind], vim_item.kind)
-                        vim_item.menu = ({
-                            nvim_lsp = "",
-                            luasnip = "",
-                            nvim_lua = "",
-                            latex_symbolc = "",
-                        })[entry.source.name]
-
-                        -- clamp the displayed text
-                        local max = 30
-                        if #vim_item.abbr > max then
-                            vim_item.abbr = vim_item.abbr:sub(1, max - 1) .. "…"
-                        end
-
-                        return vim_item
-                    end,
-                    expandable_indicator = false,
-                    fields = { "abbr", "kind", "menu" },
-                },
-
-                -- How to handle snippet expansion
-                snippet = {
-                    expand = function(args)
-                        luasnip.lsp_expand(args.body) -- Use LuaSnip to expand snippets
-                    end,
-                },
-
-                -- Completion behavior options
-                completion = {
-                    completeopt = "menu,menuone,noinsert", -- Show menu even for one item, don't insert text automatically
-                    autocomplete = false,
-                },
-
-                -- Keymappings for the completion menu
-                mapping = {
-                    -- Navigate down the list (behavior = insert text into buffer)
-                    ["<C-n>"] = cmp.mapping.select_next_item({
-                        behavior = cmp.SelectBehavior.Insert,
-                    }),
-                    -- Navigate up the list
-                    ["<C-p>"] = cmp.mapping.select_prev_item({
-                        behavior = cmp.SelectBehavior.Insert,
-                    }),
-                    -- Scroll documentation window
-                    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-d>"] = cmp.mapping.scroll_docs(4),
-                    -- open docs manually with Ctrl-l
-                    ["<C-l>"] = cmp.mapping(function()
-                        if not cmp.visible_docs() then
-                            cmp.open_docs()
-                        else
-                            cmp.scroll_docs(4)
-                        end
-                    end, { "i", "c" }),
-                    -- Confirm selection with Enter
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-
-                    -- Arrow keys to navigate menu without inserting text immediately
-                    ["<Down>"] = {
-                        i = cmp.mapping.select_next_item({
-                            behavior = types.cmp.SelectBehavior.Select,
-                        }),
-                    },
-                    ["<Up>"] = {
-                        i = cmp.mapping.select_prev_item({
-                            behavior = types.cmp.SelectBehavior.Select,
-                        }),
-                    },
-                    -- Toggle completion menu with Ctrl+Space
-                    ["<C-space>"] = function()
-                        if cmp.visible() then
-                            cmp.abort()
-                        else
-                            cmp.complete()
-                        end
-                    end,
-                },
-
-                -- Define where completion items come from and their priority
-                sources = cmp.config.sources({
-                    { name = "nvim_lsp" },  -- LSP suggestions
-                    { name = "luasnip" },   -- Snippets
-                    { name = "path" },      -- Filesystem paths (type ./ to activate)
-                    { name = "dap",     max_item_count = 10 } -- Debugger variables
-                }),
-
-                -- Matching algorithm settings
-                matching = {
-                    disallow_partial_fuzzy_matching = false,
-                },
-
-                -- Sorting logic for completion items
-                sorting = {
-                    comparators = {
-                        compare.offset,
-                        compare.exact,
-                        compare.kind,
-                        compare.score,
-                        compare.recently_used,
-                        compare.locality,
-                        compare.sort_text,
-                        compare.length,
-                        compare.order,
-                    },
-                },
+                -- języki
+                "coc-lua",
+                "coc-typst",
+                "coc-pyright",
+                "coc-rust-analyzer",
+                "coc-rls",
+                "coc-markdownlint",
             }
+        end,
+        config = function()
+            -- ── Completion behaviour ──────────────────────────────────────────
+            -- Tab: jeśli menu widoczne → wybierz następny; jeśli snippet → skocz dalej; inaczej → Tab
+            vim.keymap.set("i", "<TAB>", function()
+                if vim.fn["coc#pum#visible"]() == 1 then
+                    return vim.fn["coc#pum#next"](1)
+                elseif vim.fn["coc#expandableOrJumpable"]() == 1 then
+                    return "<Plug>(coc-snippets-expand-jump)"
+                else
+                    return "<TAB>"
+                end
+            end, { silent = true, expr = true, noremap = true })
 
-            -- Set scroll offset (keep 5 items visible above/below cursor in menu)
-            opts.window.completion.scrolloff = 5
-            -- Apply the configuration
-            cmp.setup(opts)
+            vim.keymap.set("i", "<S-TAB>", function()
+                if vim.fn["coc#pum#visible"]() == 1 then
+                    return vim.fn["coc#pum#prev"](1)
+                else
+                    return "<S-TAB>"
+                end
+            end, { silent = true, expr = true, noremap = true })
+
+            -- Enter potwierdza wybrany element (lub zwykły Enter jeśli nic nie wybrano)
+            vim.keymap.set("i", "<CR>", function()
+                if vim.fn["coc#pum#visible"]() == 1 and vim.fn["coc#pum#info"]().index >= 0 then
+                    return vim.fn["coc#pum#confirm"]()
+                else
+                    -- Autopairs-friendly: dodaj nową linię z właściwym wcięciem
+                    return "<C-g>u<CR><c-r>=coc#on_enter()<CR>"
+                end
+            end, { silent = true, expr = true, noremap = true })
+
+            -- Ctrl+Space: wymuś otwarcie menu
+            vim.keymap.set("i", "<C-space>", "coc#refresh()", { silent = true, expr = true })
+
+            -- Scroll dokumentacji w popup
+            vim.keymap.set({ "i", "n" }, "<C-u>", function()
+                if vim.fn["coc#float#has_scroll"]() == 1 then
+                    return vim.fn["coc#float#scroll"](0)
+                else return "<C-u>" end
+            end, { silent = true, expr = true, nowait = true })
+
+            vim.keymap.set({ "i", "n" }, "<C-d>", function()
+                if vim.fn["coc#float#has_scroll"]() == 1 then
+                    return vim.fn["coc#float#scroll"](1)
+                else return "<C-d>" end
+            end, { silent = true, expr = true, nowait = true })
+
+            -- ── LSP Navigation ───────────────────────────────────────────────
+            vim.keymap.set("n", "gd", "<Plug>(coc-definition)",       { silent = true })
+            vim.keymap.set("n", "gy", "<Plug>(coc-type-definition)",   { silent = true })
+            vim.keymap.set("n", "gi", "<Plug>(coc-implementation)",    { silent = true })
+            vim.keymap.set("n", "gr", "<Plug>(coc-references)",        { silent = true })
+            vim.keymap.set("n", "[d", "<Plug>(coc-diagnostic-prev)",   { silent = true })
+            vim.keymap.set("n", "]d", "<Plug>(coc-diagnostic-next)",   { silent = true })
+
+            -- ── Hover / Documentation ────────────────────────────────────────
+            vim.keymap.set("n", "K", function()
+                local ft = vim.bo.filetype
+                if ft == "vim" or ft == "help" then
+                    vim.cmd("h " .. vim.fn.expand("<cword>"))
+                elseif vim.fn["coc#rpc#ready"]() == 1 then
+                    vim.fn.CocActionAsync("doHover")
+                else
+                    vim.cmd("!" .. vim.o.keywordprg .. " " .. vim.fn.expand("<cword>"))
+                end
+            end, { silent = true })
+
+            -- ── Code Actions ─────────────────────────────────────────────────
+            vim.keymap.set("n", "<leader>rn", "<Plug>(coc-rename)",               { silent = true })
+            vim.keymap.set({ "n", "v" }, "<leader>ca", "<Plug>(coc-codeaction-selected)", { silent = true })
+            vim.keymap.set("n", "<leader>cf", "<Plug>(coc-fix-current)",           { silent = true })
+            vim.keymap.set("n", "<leader>cl", "<Plug>(coc-codelens-action)",       { silent = true })
+
+            -- ── Diagnostics list ─────────────────────────────────────────────
+            vim.keymap.set("n", "<leader>ld", "<cmd>CocList diagnostics<cr>",  { silent = true, desc = "List diagnostics" })
+            vim.keymap.set("n", "<leader>le", "<cmd>CocList extensions<cr>",   { silent = true, desc = "List extensions" })
+            vim.keymap.set("n", "<leader>lc", "<cmd>CocList commands<cr>",     { silent = true, desc = "List commands" })
+
+            -- Mason zastąpiony przez CocList / CocInstall
+            vim.keymap.set("n", "<leader>lm", "<cmd>CocList extensions<cr>", { desc = "Coc extensions (zamiast Mason)" })
+            vim.keymap.set("n", "<leader>lr", "<cmd>CocRestart<CR>",          { desc = "Coc restart" })
+
+            -- ── Highlight symbol under cursor ─────────────────────────────────
+            vim.api.nvim_create_autocmd("CursorHold", {
+                callback = function() vim.fn.CocActionAsync("highlight") end,
+            })
+
         end,
     },
 
-    -- 2. Configuration for nvim-autopairs
-    -- Automatically adds closing brackets, quotes, etc.
+    -- Autopairs - zostaje, ale bez integracji z cmp
     {
-        'windwp/nvim-autopairs',
-        dependency = {
-            "hrsh7th/nvim-cmp",
-        },
-        event = 'InsertEnter',
+        "windwp/nvim-autopairs",
+        event = "InsertEnter",
         config = function()
             require("nvim-autopairs").setup({})
-
-            -- Integration with nvim-cmp:
-            -- If you accept a function completion (e.g., "fmt.Println"),
-            -- this automatically adds the opening parenthesis "(".
-            local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-            local cmp = require('cmp')
-            cmp.event:on(
-                'confirm_done',
-                cmp_autopairs.on_confirm_done()
-            )
+            -- Coc obsługuje enter samodzielnie (patrz mapowanie <CR> wyżej),
+            -- więc NIE podpinamy tutaj cmp_autopairs
         end,
     },
 
-    -- 3. Configuration for nvim-surround
-    -- Quickly add, change, or delete surrounding characters (quotes, brackets, tags)
+    -- Surround - bez zmian
     {
         "kylechui/nvim-surround",
-        version = "^3.0.0", -- Pin version for stability
-        event = "VeryLazy", -- Load later to not block startup
+        version = "^3.0.0",
+        event = "VeryLazy",
         config = function()
-            require("nvim-surround").setup({
-                -- Configuration here, or leave empty to use defaults
-            })
-        end
+            require("nvim-surround").setup({})
+        end,
     },
 
-    -- 4. Configuration for LuaSnip specifically
-    -- Handles snippet expansion and jumping between snippet placeholders
+    -- lazydev zostaje (daje typy dla vim.* w Lua)
     {
-        "L3MON4D3/LuaSnip",
-        config = function()
-            require("luasnip").config.setup({ history = true })
-        end,
-        -- Keymaps to jump forward/backward inside a snippet
-        keys = {
-            { "<c-n>", function() require("luasnip").jump(1) end,  mode = { "i", "s" } }, -- Jump forward
-            { "<c-p>", function() require("luasnip").jump(-1) end, mode = { "i", "s" } }  -- Jump backward
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+            library = {
+                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+            },
         },
-    }
+    },
 }

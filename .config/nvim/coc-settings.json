@@ -1,0 +1,44 @@
+{
+  "suggest.noselect": true,
+  "suggest.enablePreview": true,
+  "suggest.floatConfig": {
+    "border": true,
+    "rounded": true,
+    "maxWidth": 35,
+    "maxHeight": 8
+  },
+  "hover.floatConfig": {
+    "border": true,
+    "rounded": true,
+    "maxWidth": 80,
+    "maxHeight": 20
+  },
+  "diagnostic.errorSign": "E",
+  "diagnostic.warningSign": "W",
+  "diagnostic.infoSign": "I",
+  "diagnostic.hintSign": "H",
+  "inlayHint.enable": true,
+
+  "languageserver": {
+    "tinymist": {
+      "command": "tinymist",
+      "filetypes": ["typst"],
+      "initializationOptions": {
+        "exportPdf": "onType",
+        "outputPath": "$root/target/$dir/$name",
+        "formatterMode": "typstyle"
+      }
+    },
+    "lua": {
+      "command": "lua-language-server",
+      "filetypes": ["lua"],
+      "settings": {
+        "Lua": {
+          "diagnostics": { "globals": ["vim"] },
+          "telemetry": { "enable": false },
+          "hint": { "enable": true }
+        }
+      }
+    }
+  }
+}
