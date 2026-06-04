@@ -1,5 +1,5 @@
+---@diagnostic disable: missing-fields
 return {
-    -- coc.nvim - kompletna wymiana za Mason + nvim-lspconfig + nvim-cmp
     {
         "neoclide/coc.nvim",
         branch = "release",
@@ -14,7 +14,7 @@ return {
                 "coc-sh",
                 "coc-marketplace",
 
-                -- języki
+                -- languages
                 "coc-lua",
                 "coc-typst",
                 "coc-pyright",
@@ -22,8 +22,6 @@ return {
             }
         end,
         config = function()
-            -- ── Completion behaviour ──────────────────────────────────────────
-            -- Tab: jeśli menu widoczne → wybierz następny; jeśli snippet → skocz dalej; inaczej → Tab
             vim.keymap.set("i", "<TAB>", function()
                 if vim.fn["coc#pum#visible"]() == 1 then
                     return vim.fn["coc#pum#next"](1)
@@ -42,20 +40,14 @@ return {
                 end
             end, { silent = true, expr = true, noremap = true })
 
-            -- Enter potwierdza wybrany element (lub zwykły Enter jeśli nic nie wybrano)
             vim.keymap.set("i", "<CR>", function()
                 if vim.fn["coc#pum#visible"]() == 1 and vim.fn["coc#pum#info"]().index >= 0 then
                     return vim.fn["coc#pum#confirm"]()
                 else
-                    -- Autopairs-friendly: dodaj nową linię z właściwym wcięciem
                     return "<C-g>u<CR><c-r>=coc#on_enter()<CR>"
                 end
             end, { silent = true, expr = true, noremap = true })
 
-            -- Ctrl+Space: wymuś otwarcie menu
-            vim.keymap.set("i", "<C-space>", "coc#refresh()", { silent = true, expr = true })
-
-            -- Scroll dokumentacji w popup
             vim.keymap.set({ "i", "n" }, "<C-u>", function()
                 if vim.fn["coc#float#has_scroll"]() == 1 then
                     return vim.fn["coc#float#scroll"](0)
@@ -110,19 +102,6 @@ return {
 
         end,
     },
-
-    -- Autopairs - zostaje, ale bez integracji z cmp
-    {
-        "windwp/nvim-autopairs",
-        event = "InsertEnter",
-        config = function()
-            require("nvim-autopairs").setup({})
-            -- Coc obsługuje enter samodzielnie (patrz mapowanie <CR> wyżej),
-            -- więc NIE podpinamy tutaj cmp_autopairs
-        end,
-    },
-
-    -- lazydev zostaje (daje typy dla vim.* w Lua)
     {
         "folke/lazydev.nvim",
         ft = "lua",
