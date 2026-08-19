@@ -35,7 +35,13 @@ o.breakindent = true
 o.updatetime = 250
 o.showmode = false
 o.laststatus = 3
-o.winborder = "rounded" -- 0.11+: one border setting for every float
+-- One place that decides the border style for every floating window.
+-- "solid" draws the border cells as plain whitespace instead of box-drawing
+-- characters. Combined with the border highlights flattened in ui.lua, a float
+-- becomes a padded panel with no visible frame, which is what NvChad does.
+-- Change this to "rounded", "single" or "none" and everything follows.
+vim.g.ui_border = "solid"
+o.winborder = vim.g.ui_border
 o.guicursor = "n-v-sm:block,i-t-ci-ve-c:ver25,r-cr-o:hor20"
 
 -- WAS: vim.g.termguicolors = true

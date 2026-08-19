@@ -100,30 +100,128 @@ map("n", "<leader>th", function()
 end, { desc = "Inlay hints" })
 
 --------------------------------------------------------------------------------
--- Diagnostic noise
+-- Diagnostic display
 --------------------------------------------------------------------------------
--- Saving half-written Rust means clippy flags nearly every line, and the
--- end-of-line messages bury the code. <leader>td cycles three levels. Gutter
--- signs stay on in all of them, so you never lose track of which lines have
--- problems.
+-- Four levels, cycled with <leader>td. Gutter signs stay on in every one of
+-- them, so you never lose track of which lines have problems.
 --
---   inline  message at the end of every affected line (default)
---   cursor  only the line under the cursor, printed in full underneath it
+--   float   nothing inline; a window opens when the cursor rests on a problem
+--           (default)
+--   inline  message at the end of every affected line
+--   cursor  full message printed under the cursor line, no window
 --   off     gutter signs only
 --
--- To also drop warnings and keep just errors, add
+-- The float shows the same text as <leader>rD. rust-analyzer ships the
+-- cargo-rendered diagnostic -- code frame, carets, notes, the lot -- in the
+-- LSP diagnostic's data field, and the formatter below prefers it over the
+-- one-line message. Other languages have no rendered field and fall back to
+-- the plain message, so this costs them nothing.
+--
+-- To keep only errors and drop warnings, add
 -- severity = { min = vim.diagnostic.severity.ERROR } to the virtual_text table.
-local diag_levels = { "inline", "cursor", "off" }
+
+-- rustaceanvim asks cargo for ANSI-coloured output so that its own
+-- :RustLsp renderDiagnostic can turn the escape codes into real highlights.
+-- open_float does no such thing, so without this they land in the window as
+-- literal "ESC[1m" noise. Matches a CSI sequence: ESC [ digits/semicolons letter.
+local ANSI = "\27%[[%d;]*%a"
+
+-- Returns the cargo-rendered text for a diagnostic, or nil if it has none.
+local function rendered_of(diag)
+  local rendered = vim.tbl_get(diag, "user_data", "lsp", "data", "rendered")
+  if type(rendered) == "string" and rendered ~= "" then
+    return (rendered:gsub(ANSI, ""):gsub("%s+$", ""))
+  end
+  return nil
+end
+
+local float_group = vim.api.nvim_create_augroup("diagnostic-float", { clear = true })
+
+local function set_float_on_hover(enabled)
+  vim.api.nvim_clear_autocmds({ group = float_group })
+  if not enabled then
+    return
+  end
+  vim.api.nvim_create_autocmd("CursorHold", {
+    group = float_group,
+    callback = function()
+      -- Never stack floats. If one is already open -- hover, completion docs,
+      -- signature help, or the previous diagnostic float -- do nothing. The
+      -- diagnostic float closes itself on CursorMoved, so the next time the
+      -- cursor comes to rest there is nothing in the way.
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        if vim.api.nvim_win_get_config(win).relative ~= "" then
+          return
+        end
+      end
+
+      local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+      local has_rendered = false
+      for _, diag in ipairs(vim.diagnostic.get(0, { lnum = lnum })) do
+        if rendered_of(diag) then
+          has_rendered = true
+          break
+        end
+      end
+
+      local opts = {
+        -- "cursor" means the cursor has to sit inside the diagnostic's range,
+        -- not merely somewhere on the line. Change to "line" if you want the
+        -- window whenever the line has a problem anywhere.
+        scope = "cursor",
+        focus = false, -- do not jump into the window
+        border = vim.g.ui_border,
+        max_width = 100, -- cargo frames are wider than a hover
+        max_height = 20,
+        header = "",
+        source = "if_many",
+        format = function(diag)
+          local rendered = rendered_of(diag)
+          if rendered then
+            return rendered
+          end
+          -- rust-analyzer emits its suggested fix as a separate diagnostic
+          -- ("remove the whole `use` item"), which the cargo frame above
+          -- already spells out. Returning nil drops it from the window.
+          if has_rendered then
+            return nil
+          end
+          return diag.message
+        end,
+      }
+
+      if has_rendered then
+        -- Numbering each entry indents every following line and knocks the
+        -- carets out of line with the code above them. The source name would
+        -- be tacked onto the end of the frame for the same reason.
+        opts.prefix = ""
+        opts.source = false
+      end
+
+      vim.diagnostic.open_float(opts)
+    end,
+  })
+end
+
+-- Delay before the window appears is 'updatetime' (250ms, set in options.lua).
+local diag_levels = { "float", "inline", "cursor", "off" }
 local diag_level = 1
 
-map("n", "<leader>td", function()
-  diag_level = diag_level % #diag_levels + 1
+local function apply_diag_level()
   local level = diag_levels[diag_level]
   vim.diagnostic.config({
     virtual_text = level == "inline" and { spacing = 2, prefix = "\u{25CF}" } or false,
     virtual_lines = level == "cursor" and { current_line = true } or false,
   })
-  vim.notify("Diagnostics: " .. level)
+  set_float_on_hover(level == "float")
+end
+
+apply_diag_level() -- silent on startup
+
+map("n", "<leader>td", function()
+  diag_level = diag_level % #diag_levels + 1
+  apply_diag_level()
+  vim.notify("Diagnostics: " .. diag_levels[diag_level])
 end, { desc = "Cycle diagnostic display" })
 
 -- Total silence, gutter signs included

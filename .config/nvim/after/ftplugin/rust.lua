@@ -26,6 +26,10 @@ map("<leader>re", "<cmd>RustLsp explainError<CR>", "Explain error (rustc --expla
 map("<leader>rD", "<cmd>RustLsp renderDiagnostic<CR>", "Full cargo-style diagnostic")
 map("<leader>rm", "<cmd>RustLsp expandMacro<CR>", "Expand macro")
 
+-- Documentation. Hover gives you the signature; openDocs opens docs.rs for
+-- the symbol under the cursor in your browser, which is where the examples are.
+map("<leader>ro", "<cmd>RustLsp openDocs<CR>", "Open docs.rs for symbol")
+
 -- Navigation
 map("<leader>rp", "<cmd>RustLsp parentModule<CR>", "Parent module")
 map("<leader>rc", "<cmd>RustLsp openCargo<CR>", "Open Cargo.toml")

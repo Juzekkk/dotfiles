@@ -13,9 +13,43 @@ vim.g.everforest_background = "hard" -- "soft" | "medium" | "hard"
 vim.g.everforest_enable_italic = 1
 vim.g.everforest_disable_italic_comment = 0
 vim.g.everforest_transparent_background = 0
-vim.g.everforest_ui_contrast = "low"
+vim.g.everforest_ui_contrast = "low" -- "low" | "high"
 vim.g.everforest_better_performance = 1
 vim.cmd.colorscheme("everforest")
+
+--------------------------------------------------------------------------------
+-- Borderless floats
+--------------------------------------------------------------------------------
+-- vim.g.ui_border is "solid", so Neovim draws each border cell as a space
+-- rather than a box-drawing character. That alone is not enough: the space is
+-- painted with the *border* highlight, so you still see a frame in a different
+-- colour. Linking every border group to its window group makes the ring blend
+-- into the float and read as padding.
+--
+-- This is the same trick behind NvChad's "borderless" telescope style.
+--
+-- Re-run on ColorScheme, because loading a theme wipes every highlight.
+local function flatten_borders()
+  local pairs_ = {
+    FloatBorder = "NormalFloat",
+    -- blink.cmp
+    BlinkCmpMenuBorder = "BlinkCmpMenu",
+    BlinkCmpDocBorder = "BlinkCmpDoc",
+    BlinkCmpSignatureHelpBorder = "BlinkCmpSignatureHelp",
+    -- fzf-lua
+    FzfLuaBorder = "FzfLuaNormal",
+    FzfLuaPreviewBorder = "FzfLuaPreviewNormal",
+  }
+  for border, window in pairs(pairs_) do
+    vim.api.nvim_set_hl(0, border, { link = window })
+  end
+end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("flatten-borders", { clear = true }),
+  callback = flatten_borders,
+})
+flatten_borders()
 
 --------------------------------------------------------------------------------
 -- Icons
@@ -133,6 +167,7 @@ wk.setup({
   preset = "helix",
   notify = false,
   sort = { "desc" },
+  win = { border = vim.g.ui_border },
 })
 
 wk.add({

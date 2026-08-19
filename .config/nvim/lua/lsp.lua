@@ -15,13 +15,13 @@
 --------------------------------------------------------------------------------
 -- Sign text is escape encoded for the same reason as the DAP signs: a stripped
 -- glyph leaves an empty string and the sign disappears without any error.
+-- NOTE: virtual_text and virtual_lines are deliberately absent. The display
+-- level cycled by <leader>td owns those two fields, and it is applied from
+-- keymaps.lua, which loads before this file. vim.diagnostic.config() merges
+-- per key, so setting them here would silently override the chosen level.
 vim.diagnostic.config({
   severity_sort = true,
-  virtual_text = { spacing = 2, prefix = "\u{25CF}" }, -- ●
-  -- virtual_lines shows the full message under the cursor. Off by default,
-  -- because together with virtual_text it gets crowded. Toggle: <leader>tv
-  virtual_lines = false,
-  float = { border = "rounded", source = "if_many", max_width = 80 },
+  float = { border = vim.g.ui_border, source = "if_many", max_width = 80 },
   signs = {
     text = {
       [vim.diagnostic.severity.ERROR] = "\u{2716}", -- ✖
@@ -80,7 +80,7 @@ vim.g.rustaceanvim = {
     -- signature covers the whole screen.
     -- Accepts anything vim.lsp.util.open_floating_preview() accepts.
     float_win_config = {
-      border = "rounded",
+      border = vim.g.ui_border,
       max_width = 80,
       max_height = 16,
       -- Without this, capping the width clips long lines instead of folding
@@ -135,7 +135,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     -- actions`, and LspAttach and ftplugin can fire in either order.
     if client.name ~= "rust-analyzer" then
       map("n", "K", function()
-        vim.lsp.buf.hover({ border = "rounded", max_width = 80, max_height = 16, wrap = true })
+        vim.lsp.buf.hover({ border = vim.g.ui_border, max_width = 80, max_height = 16, wrap = true })
       end, "Hover documentation")
     end
 
@@ -188,5 +188,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if client.name == "ruff" then
       client.server_capabilities.hoverProvider = false
     end
+
+    -- Turn off LSP semantic tokens.
+    --
+    -- coc.nvim never fed semantic tokens to Neovim's highlighter, so under the
+    -- old setup everything was coloured by treesitter alone. The native client
+    -- does send them, and they paint over treesitter at a higher priority.
+    -- everforest predates the @lsp.type.* groups, so the two layers disagree
+    -- and colours look like they shift around. Dropping the capability
+    -- restores exactly the colouring you had before.
+    --
+    -- Delete these two lines to get them back; :Inspect on any word shows
+    -- which layer is painting it.
+    client.server_capabilities.semanticTokensProvider = nil
   end,
 })

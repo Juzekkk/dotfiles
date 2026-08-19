@@ -3,7 +3,7 @@
 No plugin manager beyond the built-in `vim.pack`, no Node.js, no Mason.
 15 plugins, native LSP, servers configured in `lsp/*.lua`.
 
-## Requirements
+## 📦 Requirements
 
 Neovim **0.12+** (`nvim --version`). It refuses to load on 0.11 because
 `vim.pack` does not exist there.
@@ -36,7 +36,7 @@ without a patched font. Only file-type icons need one.
 Grab `codelldb` from the [vscode-lldb releases](https://github.com/vadimcn/codelldb/releases)
 and put it on PATH. rustaceanvim finds it from there.
 
-## Install
+## 🚀 Install
 
 ```bash
 # 1. Keep what you have
@@ -59,7 +59,7 @@ building. Run `:restart`, then `:checkhealth`.
 
 Roll back with `rm -rf ~/.config/nvim && mv ~/.config/nvim.bak ~/.config/nvim`.
 
-## Layout
+## 🗂️ Layout
 
 Neovim loads `lsp/` and `after/ftplugin/` by itself, off the runtimepath.
 You never `require` anything from those two directories.
@@ -89,7 +89,36 @@ You never `require` anything from those two directories.
     ├── help.lua / man.lua / qf.lua
 ```
 
-## Working directory
+The order in `init.lua` is not arbitrary:
+
+```mermaid
+flowchart LR
+    accTitle: Configuration load order
+    accDescr: Leader must be set before keymaps, options before plugins, and packages before any module that requires a plugin.
+
+    leader["1 leader<br/>mapleader"]
+    opts["2 options.lua"]
+    pack["3 packages.lua<br/>vim.pack.add"]
+    keys["4 keymaps.lua"]
+    mods["5 ui / editor / lsp / debugging"]
+    auto["6 autocmds.lua"]
+
+    leader --> opts --> pack --> keys --> mods --> auto
+
+    classDef critical fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+    classDef normal fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+
+    class leader,pack,keys critical
+    class opts,mods,auto normal
+```
+
+The three red steps fail quietly if you reorder them. A leader set after the
+keymaps records `<leader>` as `\`. A module that requires `fzf-lua` before
+`packages.lua` dies with "module not found". And keymaps registered after
+`ui.lua` can be missing from the which-key popup, because which-key builds its
+prefix tree from the keymaps that exist when it initialises.
+
+## 📁 Working directory
 
 `nvim some/folder` changes into that folder and opens the tree rooted there.
 Neovim on its own would leave the working directory wherever you launched from,
@@ -101,7 +130,7 @@ If you opened a file by path and ended up in the wrong project, `<leader>cd`
 moves the working directory to the nearest ancestor holding `.git`,
 `Cargo.toml` or `pyproject.toml`.
 
-## Keymaps
+## ⌨️ Keymaps
 
 Leader is space. `<leader>sk` lists the live, complete set.
 
@@ -141,6 +170,7 @@ Leader is space. `<leader>sk` lists the live, complete set.
 | `<leader>rt` | testables |
 | `<leader>re` | explain error |
 | `<leader>rm` | expand macro |
+| `<leader>ro` | open docs.rs for the symbol |
 | `K` | hover with actions |
 
 ### Debug
@@ -158,11 +188,39 @@ Leader is space. `<leader>sk` lists the live, complete set.
 
 | Key | Action |
 | --- | --- |
+| `<leader>td` | cycle diagnostic display: float → inline → cursor line → off |
+| `<leader>tD` | diagnostics on/off, gutter signs included |
+| `<leader>ts` | completion popup, ghost text and signature help on/off |
 | `<leader>tf` | format on save |
 | `<leader>th` | inlay hints |
-| `<leader>tv` | expanded diagnostics |
 | `<leader>tb` | inline git blame |
 | `<leader>tc` | column guide (`colorcolumn`) |
+
+`<leader>td` exists for the half-written-code case: save mid-thought and clippy
+flags nearly every line, so the end-of-line messages bury the code. Gutter
+signs stay on at every level, so you still know which lines have problems.
+
+The default level, `float`, puts nothing inline at all. Rest the cursor on a
+problem and a window opens with the explanation; move off it and the window
+goes. For Rust that window shows the full cargo rendering — code frame, carets,
+notes — the same text `<leader>rD` gives you, because rust-analyzer ships it in
+the diagnostic's `data.rendered` field and the formatter in `lua/keymaps.lua`
+prefers it over the one-line message. Other languages fall back to the plain
+message.
+
+Two things have to be cleaned off that text before it is readable. rustaceanvim
+asks cargo for ANSI-coloured output so its own renderer can turn the escape
+codes into highlights; `open_float` cannot, so the codes are stripped first.
+And rust-analyzer emits its suggested fix as a second diagnostic that the cargo
+frame already spells out, so the formatter returns `nil` for it and the
+numbering prefix is dropped, which keeps the carets lined up with the code.
+
+`<leader>rD` still has its own job: it cycles to the next diagnostic anywhere
+in the file, whereas the float only reacts to what is under the cursor. The
+float triggers on `CursorHold`, so `updatetime` in `lua/options.lua` (250 ms)
+is the delay before it appears, and it uses `scope = "cursor"` — the cursor has
+to sit inside the diagnostic's range, not merely somewhere on the line. Change
+that to `"line"` for the looser behaviour.
 
 ## 🔧 Maintenance
 
@@ -197,7 +255,7 @@ Create `lsp/<name>.lua` returning a table with `cmd`, `filetypes` and
 `lua/lsp.lua`. The [lsp/ directory in nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/tree/master/lsp)
 uses the identical format, so you can copy a file straight across.
 
-## Known traps
+## ⚠️ Known traps
 
 | Symptom | Cause |
 | --- | --- |
@@ -207,6 +265,35 @@ uses the identical format, so you can copy a file straight across.
 | Two hovers in Python | ruff's hover should be off; see the end of `lua/lsp.lua` |
 | Two clients on a `.rs` file | never enable `rust_analyzer` through `vim.lsp.enable` — rustaceanvim owns it |
 | `<A-j>` does nothing | the terminal is eating Alt; in Kitty set `macos_option_as_alt yes` |
+| A keymap is missing from which-key | `:verbose map <leader>td` tells you whether the mapping exists at all; if it does, it is a which-key discovery problem, so check `:checkhealth which-key` and the load order in `init.lua` |
+| Colours look inconsistent | LSP semantic tokens are off by default; see the colours section |
+
+## 🎨 Colours and borders
+
+The theme is everforest (`hard` background). Switching is two lines: the entry
+in `lua/packages.lua` and the `setup()` block at the top of `lua/ui.lua`.
+
+Floating windows have no visible frame. Two settings produce that:
+
+1. `vim.g.ui_border = "solid"` in `lua/options.lua` makes Neovim draw each
+   border cell as a space instead of a box-drawing character. Every float in
+   the config reads this one variable, so changing it to `"rounded"`,
+   `"single"` or `"none"` moves everything at once.
+2. `flatten_borders()` in `lua/ui.lua` links each border highlight group to
+   its window group, so the ring of spaces takes the float's own background
+   and reads as padding rather than a frame.
+
+Step 2 is the part that matters. A `rounded` border draws an arc glyph on a
+rectangular background cell, so the corner still looks square no matter what
+font you use. NvChad sidesteps this the same way, which is what its
+`telescope = { style = "borderless" }` default does under the hood.
+
+LSP semantic tokens are switched off at the end of the `LspAttach` callback in
+`lua/lsp.lua`. coc.nvim never sent them, so under the old setup treesitter did
+all the colouring on its own. The native client does send them and they paint
+over treesitter at a higher priority, which is what made everforest look like
+it was drifting. Delete the `semanticTokensProvider` line to get them back.
+`:Inspect` on any word shows which layer is painting it.
 
 `vim.pack` has no lazy loading. With these 15 plugins startup is 40–60 ms.
 If you grow to several dozen, measure with `nvim --startuptime /tmp/st.log`

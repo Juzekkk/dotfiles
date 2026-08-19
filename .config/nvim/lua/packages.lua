@@ -23,6 +23,8 @@ vim.pack.add({
   ---------------------------------------------------------------------------
   -- Appearance
   ---------------------------------------------------------------------------
+  -- Swapping themes is a two-line change: this line and the setup block at
+  -- the top of ui.lua.
   gh("sainnhe/everforest"),
   gh("nvim-lualine/lualine.nvim"),
   gh("folke/which-key.nvim"),

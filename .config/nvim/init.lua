@@ -22,6 +22,15 @@ vim.g.maplocalleader = " "
 require("options")
 require("packages")
 
+-- Keymaps go BEFORE the plugin setups, which-key's in particular. which-key
+-- builds its prefix tree from the keymaps that exist when it initialises, so
+-- anything registered after wk.setup() can be missing from the popup.
+--
+-- Safe this early: keymaps.lua only needs fzf-lua to be on the runtimepath
+-- (packages.lua did that), not configured. Mappings that point at user
+-- commands like :FormatToggle resolve when pressed, not when defined.
+require("keymaps")
+
 require("ui")
 require("editor")
 require("lsp")
@@ -29,5 +38,4 @@ require("lsp")
 -- (package.loaded.debug is already taken), the second with nvim-dap's module.
 require("debugging")
 
-require("keymaps")
 require("autocmds")
